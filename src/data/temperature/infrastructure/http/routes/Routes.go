@@ -7,15 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TemperatureRoutes configures routes for the temperature feature
-// It assumes these routes might live under a /data prefix in the main router
 func TemperatureRoutes(router *gin.RouterGroup) {
-	// Initialize controller
+	// Initialize controllers
 	registerRecordController := temperaturehttp.SetUpRegisterRecordController()
+	getMinutesRecordsController := temperaturehttp.SetUpGetMinutesRecordsController() // <- Inicializar nuevo controller
 
-	// Define the POST route for registering data.
-	// Apply JWTAuthMiddleware: Even though kit_id comes from the request,
-	// this ensures only authenticated users can submit data.
-	// You could add further validation later to check if the authenticated user owns the kit_id.
+	// POST / -> Register data (existing route)
 	router.POST("/", middlewares.JWTAuthMiddleware(), registerRecordController.Run)
+
+	// GET /kit/:kit_id/minutes/:minutes -> Get records for the last N minutes <- NUEVA RUTA
+	router.GET("/kit/:kit_id/minutes/:minutes", middlewares.JWTAuthMiddleware(), getMinutesRecordsController.Run)
+	// Note: Add authorization check if needed to ensure user owns the kit_id
 }

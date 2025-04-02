@@ -20,7 +20,7 @@ func NewClientRepositoryMysql() (*ClientRepositoryMysql, error) {
 }
 
 func (r *ClientRepositoryMysql) Create(client entities.Client) (entities.Client, error) {
-	query := "INSERT INTO clients (name, last_name, email, password) VALUES (?, ?, ?, ?)"
+	query := "INSERT INTO users (name, last_name, email, password) VALUES (?, ?, ?, ?)"
 	stmt, err := r.DB.Prepare(query)
 	if err != nil {
 		return entities.Client{}, err
@@ -46,7 +46,7 @@ func (r *ClientRepositoryMysql) Create(client entities.Client) (entities.Client,
 }
 
 func (r *ClientRepositoryMysql) GetByEmail(email string) (entities.Client, error) {
-	query := "SELECT user_id, name, last_name, email, password FROM clients WHERE email = ?"
+	query := "SELECT user_id, name, last_name, email, password FROM users WHERE email = ?"
 	stmt, err := r.DB.Prepare(query)
 	if err != nil {
 		return entities.Client{}, err
@@ -66,7 +66,7 @@ func (r *ClientRepositoryMysql) GetByEmail(email string) (entities.Client, error
 }
 
 func (r *ClientRepositoryMysql) GetById(id int64) (entities.Client, error) {
-	query := "SELECT user_id, name, last_name, email, password FROM clients WHERE id = ?"
+	query := "SELECT user_id, name, last_name, email, password FROM users WHERE id = ?"
 	stmt, err := r.DB.Prepare(query)
 	if err != nil {
 		return entities.Client{}, err

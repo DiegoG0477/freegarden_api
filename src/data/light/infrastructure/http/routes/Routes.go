@@ -2,18 +2,19 @@ package routes
 
 import (
 	lighthttp "api-order/src/data/light/infrastructure/http" // Alias import
-	"api-order/src/shared/middlewares"                       // Import middleware package
+	"api-order/src/shared/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
-// LightRoutes configures routes for the light feature
-// Assumes placement under a /data prefix in the main router
 func LightRoutes(router *gin.RouterGroup) {
-	// Initialize controller
+	// Initialize controllers
 	registerRecordController := lighthttp.SetUpRegisterRecordController()
+	getMinutesRecordsController := lighthttp.SetUpGetMinutesRecordsController() // <- Inicializar nuevo controller
 
-	// Define the POST route for registering data.
-	// Apply JWTAuthMiddleware for authentication.
+	// POST / -> Register data (existing route)
 	router.POST("/", middlewares.JWTAuthMiddleware(), registerRecordController.Run)
+
+	// GET /kit/:kit_id/minutes/:minutes -> Get records for the last N minutes <- NUEVA RUTA
+	router.GET("/kit/:kit_id/minutes/:minutes", middlewares.JWTAuthMiddleware(), getMinutesRecordsController.Run)
 }

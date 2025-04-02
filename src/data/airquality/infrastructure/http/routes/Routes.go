@@ -2,18 +2,19 @@ package routes
 
 import (
 	airqualityhttp "api-order/src/data/airquality/infrastructure/http" // Alias import
-	"api-order/src/shared/middlewares"                                 // Import middleware package
+	"api-order/src/shared/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
 
-// AirQualityRoutes configures routes for the air quality feature
-// Assumes placement under a /data prefix in the main router
 func AirQualityRoutes(router *gin.RouterGroup) {
-	// Initialize controller
+	// Initialize controllers
 	registerRecordController := airqualityhttp.SetUpRegisterRecordController()
+	getMinutesRecordsController := airqualityhttp.SetUpGetMinutesRecordsController() // <- Inicializar nuevo controller
 
-	// Define the POST route for registering data.
-	// Apply JWTAuthMiddleware for authentication.
+	// POST / -> Register data (existing route)
 	router.POST("/", middlewares.JWTAuthMiddleware(), registerRecordController.Run)
+
+	// GET /kit/:kit_id/minutes/:minutes -> Get records for the last N minutes <- NUEVA RUTA
+	router.GET("/kit/:kit_id/minutes/:minutes", middlewares.JWTAuthMiddleware(), getMinutesRecordsController.Run)
 }
