@@ -2,10 +2,12 @@ package server
 
 import (
 	database "api-order/src/Database"
+	alert "api-order/src/alert/infrastructure/http/routes"
 	"api-order/src/client/infrastructure/http/routes"
 	"api-order/src/config"
 	airData "api-order/src/data/airquality/infrastructure/http/routes"
 	lightData "api-order/src/data/light/infrastructure/http/routes"
+	motionData "api-order/src/data/motion/infrastructure/http/routes"
 	temperatureData "api-order/src/data/temperature/infrastructure/http/routes"
 	kit "api-order/src/kit/infrastructure/http/routes"
 	"log"
@@ -41,15 +43,19 @@ func NewServer(http, port string) Server {
 func (s *Server) registerRoutes() {
 	clientRoutes := s.engine.Group("/v1/clients")
 	kitRoutes := s.engine.Group("/v1/kits")
+	alertRoutes := s.engine.Group("/v1/alerts")
 	temperatureRoutes := s.engine.Group("/v1/data/temperature")
 	airRoutes := s.engine.Group("/v1/data/airquality")
 	lightRoutes := s.engine.Group("/v1/data/light")
+	motionRoutes := s.engine.Group("/v1/data/motion")
 
 	kit.KitRoutes(kitRoutes)
+	alert.AlertRoutes(alertRoutes)
 	routes.ClientRoutes(clientRoutes)
 	temperatureData.TemperatureRoutes(temperatureRoutes)
 	airData.AirQualityRoutes(airRoutes)
 	lightData.LightRoutes(lightRoutes)
+	motionData.MotionRoutes(motionRoutes)
 }
 
 func (s *Server) Run() {
