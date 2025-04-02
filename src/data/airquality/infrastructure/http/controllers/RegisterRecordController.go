@@ -24,6 +24,18 @@ func NewRegisterRecordController(service *application.RegisterRecordUseCase) *Re
 	}
 }
 
+// @Summary      Register airquality data record
+// @Description  Creates a new airquality level data record for a specific kit.
+// @Tags         Airquality Data
+// @Accept       json
+// @Produce      json
+// @Param        airqualityData body request.RegisterAirQualityRequest true "airquality data record"
+// @Security     BearerAuth
+// @Success      201  {object}  responses.Response{data=entities.AirQualityData} "airquality record registered successfully"
+// @Failure      400  {object}  responses.Response "Invalid request body, validation failed, or invalid Kit ID"
+// @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
+// @Failure      500  {object}  responses.Response "Internal server error while registering airquality record"
+// @Router       /data/airquality/ [post]
 func (ctr *RegisterRecordController) Run(ctx *gin.Context) {
 	var req request.RegisterAirQualityRequest
 

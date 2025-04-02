@@ -24,6 +24,18 @@ func NewRegisterRecordController(service *application.RegisterRecordUseCase) *Re
 	}
 }
 
+// @Summary      Register light data record
+// @Description  Creates a new light level data record for a specific kit.
+// @Tags         Light Data
+// @Accept       json
+// @Produce      json
+// @Param        lightData body request.RegisterLightRequest true "Light data record"
+// @Security     BearerAuth
+// @Success      201  {object}  responses.Response{data=entities.LightData} "Light record registered successfully"
+// @Failure      400  {object}  responses.Response "Invalid request body, validation failed, or invalid Kit ID"
+// @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
+// @Failure      500  {object}  responses.Response "Internal server error while registering light record"
+// @Router       /data/light/ [post]
 func (ctr *RegisterRecordController) Run(ctx *gin.Context) {
 	var req request.RegisterLightRequest
 

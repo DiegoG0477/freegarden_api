@@ -20,6 +20,18 @@ func NewGetMinutesRecordsController(service *application.GetMinutesRecordsUseCas
 	}
 }
 
+// @Summary      Get recent motion data records
+// @Description  Retrieves motion data records for a specific kit within the last N minutes.
+// @Tags         Motion Data
+// @Produce      json
+// @Param        kit_id path int true "Kit ID" Format(int64)
+// @Param        minutes path int true "Number of minutes ago to fetch records from" Format(int64)
+// @Security     BearerAuth
+// @Success      200  {object}  responses.Response{data=[]entities.MotionData} "motion records retrieved successfully"
+// @Failure      400  {object}  responses.Response "Invalid Kit ID or minutes parameter provided"
+// @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
+// @Failure      500  {object}  responses.Response "Internal server error while retrieving motion records"
+// @Router       /data/motion/kit/{kit_id}/minutes/{minutes} [get]
 func (ctr *GetMinutesRecordsController) Run(ctx *gin.Context) {
 	// 1. Get parameters from URL
 	kitIDParam := ctx.Param("kit_id")

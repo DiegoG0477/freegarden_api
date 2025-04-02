@@ -24,8 +24,20 @@ func NewRegisterRecordController(service *application.RegisterRecordUseCase) *Re
 	}
 }
 
+// @Summary      Register temperature data record
+// @Description  Creates a new temperature level data record for a specific kit.
+// @Tags         Temperature Data
+// @Accept       json
+// @Produce      json
+// @Param        temperatureData body request.RegisterTemperatureRequest true "temperature data record"
+// @Security     BearerAuth
+// @Success      201  {object}  responses.Response{data=entities.TemperatureData} "temperature record registered successfully"
+// @Failure      400  {object}  responses.Response "Invalid request body, validation failed, or invalid Kit ID"
+// @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
+// @Failure      500  {object}  responses.Response "Internal server error while registering temperature record"
+// @Router       /data/temperature/ [post]
 func (ctr *RegisterRecordController) Run(ctx *gin.Context) {
-	var req request.RegisterRecordRequest
+	var req request.RegisterTemperatureRequest
 
 	// 1. Bind JSON request body
 	if err := ctx.ShouldBindJSON(&req); err != nil {

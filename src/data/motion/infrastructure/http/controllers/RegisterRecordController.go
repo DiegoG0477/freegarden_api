@@ -24,6 +24,18 @@ func NewRegisterRecordController(service *application.RegisterRecordUseCase) *Re
 	}
 }
 
+// @Summary      Register motion data record
+// @Description  Creates a new motion level data record for a specific kit.
+// @Tags         Motion Data
+// @Accept       json
+// @Produce      json
+// @Param        motionData body request.RegisterMotionRequest true "motion data record"
+// @Security     BearerAuth
+// @Success      201  {object}  responses.Response{data=entities.MotionData} "motion record registered successfully"
+// @Failure      400  {object}  responses.Response "Invalid request body, validation failed, or invalid Kit ID"
+// @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
+// @Failure      500  {object}  responses.Response "Internal server error while registering motion record"
+// @Router       /data/motion/ [post]
 func (ctr *RegisterRecordController) Run(ctx *gin.Context) {
 	var req request.RegisterMotionRequest
 

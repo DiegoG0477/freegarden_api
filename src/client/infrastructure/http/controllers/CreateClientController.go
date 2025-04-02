@@ -23,6 +23,17 @@ func NewCreateClientController(clientService *application.CreateClientUseCase) *
 	}
 }
 
+// @Summary      Create a new client
+// @Description  Registers a new client in the system.
+// @Tags         Clients
+// @Accept       json
+// @Produce      json
+// @Param        client body request.CreateClientRequest true "Client data to create"
+// @Success      201  {object}  responses.Response{data=entities.Client} "Client created successfully"
+// @Failure      400  {object}  responses.Response "Invalid request body or validation failed"
+// @Failure      409  {object}  responses.Response "Email already exists"
+// @Failure      500  {object}  responses.Response "Internal server error"
+// @Router       /clients/ [post]
 func (ctr *CreateClientController) Run(ctx *gin.Context) {
 	var req request.CreateClientRequest
 

@@ -1,0 +1,844 @@
+basePath: /v1             // Base path de tu API v1
+definitions:
+  controllers.AuthResponseData:
+    properties:
+      Email:
+        type: string
+      Id:
+        type: integer
+      LastName:
+        type: string
+      Name:
+        type: string
+      token:
+        type: string
+    type: object
+  entities.AirQualityData:
+    properties:
+      air_quality_index:
+        description: Air Quality Index reading
+        type: integer
+      data_id:
+        description: Corresponds to data_id PK
+        type: integer
+      kit_id:
+        description: Foreign key to kits table
+        type: integer
+      timestamp:
+        description: Timestamp from DB default
+        type: string
+    type: object
+  entities.Alert:
+    properties:
+      alert_id:
+        description: Corresponds to alert_id PK
+        type: integer
+      alert_type:
+        description: Type of alert (e.g., "under_min", "higher_max")
+        type: string
+      kit_id:
+        description: Foreign key to kits table
+        type: integer
+      message:
+        description: Detailed message for the alert
+        type: string
+      timestamp:
+        description: Timestamp from DB default
+        type: string
+    type: object
+  entities.Client:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  entities.Kit:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  entities.LightData:
+    properties:
+      data_id:
+        description: Corresponds to data_id PK
+        type: integer
+      kit_id:
+        description: Foreign key to kits table
+        type: integer
+      light_level:
+        description: Light level reading (e.g., lux)
+        type: number
+      timestamp:
+        description: Timestamp from DB default
+        type: string
+    type: object
+  entities.MotionData:
+    properties:
+      data_id:
+        description: Corresponds to data_id PK
+        type: integer
+      kit_id:
+        description: Foreign key to kits table
+        type: integer
+      motion_detected:
+        description: Whether motion was detected
+        type: boolean
+      timestamp:
+        description: Timestamp from DB default
+        type: string
+    type: object
+  entities.TemperatureData:
+    properties:
+      data_id:
+        description: Corresponds to data_id PK
+        type: integer
+      humidity:
+        description: Humidity reading
+        type: number
+      kit_id:
+        description: Foreign key to kits table
+        type: integer
+      temperature:
+        description: Temperature reading
+        type: number
+      timestamp:
+        description: Timestamp from DB default
+        type: string
+    type: object
+  request.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.CreateClientRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      last_name:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - address
+    - email
+    - last_name
+    - name
+    - password
+    type: object
+  request.RegisterAirQualityRequest:
+    properties:
+      air_quality_index:
+        description: AQI must be provided and non-negative (adjust range if needed)
+        minimum: 0
+        type: integer
+      kit_id:
+        description: Kit ID must be provided and positive
+        type: integer
+    required:
+    - air_quality_index
+    - kit_id
+    type: object
+  request.RegisterAlertRequest:
+    properties:
+      alert_type:
+        enum:
+        - under_min
+        - higher_max
+        type: string
+      kit_id:
+        type: integer
+      message:
+        minLength: 1
+        type: string
+    required:
+    - alert_type
+    - kit_id
+    - message
+    type: object
+  request.RegisterLightRequest:
+    properties:
+      kit_id:
+        description: Kit ID must be provided and positive
+        type: integer
+      light_level:
+        description: Light level must be provided and non-negative (adjust if needed)
+        minimum: 0
+        type: number
+    required:
+    - kit_id
+    - light_level
+    type: object
+  request.RegisterMotionRequest:
+    properties:
+      kit_id:
+        type: integer
+      motion_detected:
+        description: No specific validate tag needed, presence checked by ShouldBindJSON
+        type: boolean
+    required:
+    - kit_id
+    type: object
+  request.RegisterTemperatureRequest:
+    properties:
+      humidity:
+        description: Use appropriate validation (e.g., numeric range 0-100) if needed
+        type: number
+      kit_id:
+        description: Kit ID must be provided and positive
+        type: integer
+      temperature:
+        description: Use appropriate validation (e.g., numeric range) if needed
+        type: number
+    required:
+    - humidity
+    - kit_id
+    - temperature
+    type: object
+  responses.Response:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080  // Cambia esto por tu host y puerto reales (puedes usar variables
+  de entorno)
+info:
+  contact:
+    email: support@tu-dominio.com
+    name: API Support
+    url: http://www.tu-soporte.com/support
+  description: API para gestionar kits de sensores y sus datos.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API Hexagonal Go (Sensor Kits)
+  version: "1.0"
+paths:
+  /alerts/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new alert record for a specific kit.
+      parameters:
+      - description: Alert data to register
+        in: body
+        name: alert
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterAlertRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Alert registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.Alert'
+              type: object
+        "400":
+          description: Invalid request body, validation failed, invalid Kit ID, or
+            invalid alert type
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while registering alert
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Register a new alert
+      tags:
+      - Alerts
+  /alerts/{kit_id}:
+    get:
+      description: Retrieves all alerts for a given kit ID, ordered by timestamp descending.
+      parameters:
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alerts retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.Alert'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Failed to retrieve alerts
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get alerts for a specific kit
+      tags:
+      - Alerts
+  /clients/:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new client in the system.
+      parameters:
+      - description: Client data to create
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateClientRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Client created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.Client'
+              type: object
+        "400":
+          description: Invalid request body or validation failed
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Create a new client
+      tags:
+      - Clients
+  /clients/{id}:
+    get:
+      description: Retrieves the details of a specific client by their ID. This endpoint
+        might be public or require specific permissions not covered by standard user
+        JWT.
+      parameters:
+      - description: Client ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Client retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.Client'
+              type: object
+        "400":
+          description: Invalid client ID provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: Client not found
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving client
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Get client by ID
+      tags:
+      - Clients
+  /clients/auth:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a client using email and password, returns a JWT token
+        upon success.
+      parameters:
+      - description: Client Login Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/request.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/controllers.AuthResponseData'
+              type: object
+        "400":
+          description: Invalid request body format
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Incorrect password
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: Email not found
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error during login or token generation
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Authenticate a client
+      tags:
+      - Clients Authentication
+  /data/airquality/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new airquality level data record for a specific kit.
+      parameters:
+      - description: airquality data record
+        in: body
+        name: airqualityData
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterAirQualityRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: airquality record registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.AirQualityData'
+              type: object
+        "400":
+          description: Invalid request body, validation failed, or invalid Kit ID
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while registering airquality record
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Register airquality data record
+      tags:
+      - Airquality Data
+  /data/airquality/kit/{kit_id}/minutes/{minutes}:
+    get:
+      description: Retrieves airquality data records for a specific kit within the
+        last N minutes.
+      parameters:
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      - description: Number of minutes ago to fetch records from
+        format: int64
+        in: path
+        name: minutes
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: airquality records retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.AirQualityData'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID or minutes parameter provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving airquality records
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get recent airquality data records
+      tags:
+      - Airquality Data
+  /data/light/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new light level data record for a specific kit.
+      parameters:
+      - description: Light data record
+        in: body
+        name: lightData
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterLightRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Light record registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.LightData'
+              type: object
+        "400":
+          description: Invalid request body, validation failed, or invalid Kit ID
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while registering light record
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Register light data record
+      tags:
+      - Light Data
+  /data/light/kit/{kit_id}/minutes/{minutes}:
+    get:
+      description: Retrieves light data records for a specific kit within the last
+        N minutes.
+      parameters:
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      - description: Number of minutes ago to fetch records from
+        format: int64
+        in: path
+        name: minutes
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Light records retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.LightData'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID or minutes parameter provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving light records
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get recent light data records
+      tags:
+      - Light Data
+  /data/motion/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new motion level data record for a specific kit.
+      parameters:
+      - description: motion data record
+        in: body
+        name: motionData
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterMotionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: motion record registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.MotionData'
+              type: object
+        "400":
+          description: Invalid request body, validation failed, or invalid Kit ID
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while registering motion record
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Register motion data record
+      tags:
+      - Motion Data
+  /data/motion/kit/{kit_id}/minutes/{minutes}:
+    get:
+      description: Retrieves motion data records for a specific kit within the last
+        N minutes.
+      parameters:
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      - description: Number of minutes ago to fetch records from
+        format: int64
+        in: path
+        name: minutes
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: motion records retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.MotionData'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID or minutes parameter provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving motion records
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get recent motion data records
+      tags:
+      - Motion Data
+  /data/temperature/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new temperature level data record for a specific kit.
+      parameters:
+      - description: temperature data record
+        in: body
+        name: temperatureData
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterTemperatureRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: temperature record registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.TemperatureData'
+              type: object
+        "400":
+          description: Invalid request body, validation failed, or invalid Kit ID
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while registering temperature record
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Register temperature data record
+      tags:
+      - Temperature Data
+  /data/temperature/kit/{kit_id}/minutes/{minutes}:
+    get:
+      description: Retrieves temperature data records for a specific kit within the
+        last N minutes.
+      parameters:
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      - description: Number of minutes ago to fetch records from
+        format: int64
+        in: path
+        name: minutes
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: temperature records retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.TemperatureData'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID or minutes parameter provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving temperature records
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get recent temperature data records
+      tags:
+      - Temperature Data
+  /kits/:
+    get:
+      description: Retrieves all kits associated with the user identified by the JWT
+        token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Kits retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.Kit'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get kits for the authenticated user
+      tags:
+      - Kits
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

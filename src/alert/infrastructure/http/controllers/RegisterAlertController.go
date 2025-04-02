@@ -24,6 +24,18 @@ func NewRegisterAlertController(service *application.RegisterAlertUseCase) *Regi
 	}
 }
 
+// @Summary      Register a new alert
+// @Description  Creates a new alert record for a specific kit.
+// @Tags         Alerts
+// @Accept       json
+// @Produce      json
+// @Param        alert body request.RegisterAlertRequest true "Alert data to register"
+// @Security     BearerAuth
+// @Success      201  {object}  responses.Response{data=entities.Alert} "Alert registered successfully"
+// @Failure      400  {object}  responses.Response "Invalid request body, validation failed, invalid Kit ID, or invalid alert type"
+// @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
+// @Failure      500  {object}  responses.Response "Internal server error while registering alert"
+// @Router       /alerts/ [post]
 func (ctr *RegisterAlertController) Run(ctx *gin.Context) {
 	var req request.RegisterAlertRequest
 

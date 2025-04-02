@@ -19,6 +19,15 @@ func NewGetKitsController(kitService *application.GetKitsUseCase) *GetKitsContro
 	return &GetKitsController{KitService: kitService}
 }
 
+// @Summary      Get kits for the authenticated user
+// @Description  Retrieves all kits associated with the user identified by the JWT token.
+// @Tags         Kits
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  responses.Response{data=[]entities.Kit} "Kits retrieved successfully"
+// @Failure      401  {object}  responses.Response "Unauthorized"
+// @Failure      500  {object}  responses.Response "Internal server error"
+// @Router       /kits/ [get]
 func (ctr *GetKitsController) Run(ctx *gin.Context) {
 	// 1. Get UserID from JWT Claims (set by middleware)
 	claimsData, exists := ctx.Get("datUser")

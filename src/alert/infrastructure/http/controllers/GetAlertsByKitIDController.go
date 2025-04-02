@@ -18,6 +18,17 @@ func NewGetAlertsByKitIDController(service *application.GetAlertsByKitIDUseCase)
 	return &GetAlertsByKitIDController{AlertService: service}
 }
 
+// @Summary      Get alerts for a specific kit
+// @Description  Retrieves all alerts for a given kit ID, ordered by timestamp descending.
+// @Tags         Alerts
+// @Produce      json
+// @Param        kit_id path int true "Kit ID" Format(int64)
+// @Security     BearerAuth
+// @Success      200  {object}  responses.Response{data=[]entities.Alert} "Alerts retrieved successfully"
+// @Failure      400  {object}  responses.Response "Invalid Kit ID provided"
+// @Failure      401  {object}  responses.Response "Unauthorized"
+// @Failure      500  {object}  responses.Response "Failed to retrieve alerts"
+// @Router       /alerts/{kit_id} [get]
 func (ctr *GetAlertsByKitIDController) Run(ctx *gin.Context) {
 	// 1. Get kit_id from URL parameter
 	kitIDParam := ctx.Param("kit_id")
