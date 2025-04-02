@@ -13,18 +13,17 @@ import (
 
 type CreateClientController struct {
 	ClientService *application.CreateClientUseCase
-	Validator	 *validator.Validate
+	Validator     *validator.Validate
 }
 
 func NewCreateClientController(clientService *application.CreateClientUseCase) *CreateClientController {
 	return &CreateClientController{
 		ClientService: clientService,
-		Validator: validator.New(),
+		Validator:     validator.New(),
 	}
 }
 
-
-func (ctr *CreateClientController) Run(ctx *gin.Context){
+func (ctr *CreateClientController) Run(ctx *gin.Context) {
 	var req request.CreateClientRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -47,7 +46,7 @@ func (ctr *CreateClientController) Run(ctx *gin.Context){
 		return
 	}
 
-	client, err := ctr.ClientService.Run(req.Name, req.Email, req.Password)
+	client, err := ctr.ClientService.Run(req.Name, req.Email, req.Password, req.LastName)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "unique_client_email") {

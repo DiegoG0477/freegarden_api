@@ -20,14 +20,14 @@ func NewClientRepositoryMysql() (*ClientRepositoryMysql, error) {
 }
 
 func (r *ClientRepositoryMysql) Create(client entities.Client) (entities.Client, error) {
-	query := "INSERT INTO clients (name, email, password) VALUES (?, ?, ?)"
+	query := "INSERT INTO clients (name, last_name, email, password) VALUES (?, ?, ?, ?)"
 	stmt, err := r.DB.Prepare(query)
 	if err != nil {
 		return entities.Client{}, err
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(client.Name, client.Email, client.Password)
+	result, err := stmt.Exec(client.Name, client.LastName, client.Email, client.Password)
 
 	if err != nil {
 		return entities.Client{}, err
@@ -46,7 +46,7 @@ func (r *ClientRepositoryMysql) Create(client entities.Client) (entities.Client,
 }
 
 func (r *ClientRepositoryMysql) GetByEmail(email string) (entities.Client, error) {
-	query := "SELECT id, name, email, password FROM clients WHERE email = ?"
+	query := "SELECT user_id, name, last_name, email, password FROM clients WHERE email = ?"
 	stmt, err := r.DB.Prepare(query)
 	if err != nil {
 		return entities.Client{}, err
@@ -56,7 +56,7 @@ func (r *ClientRepositoryMysql) GetByEmail(email string) (entities.Client, error
 	row := stmt.QueryRow(email)
 
 	var client entities.Client
-	err = row.Scan(&client.ID, &client.Name, &client.Email, &client.Password)
+	err = row.Scan(&client.ID, &client.Name, &client.LastName, &client.Email, &client.Password)
 
 	if err != nil {
 		return entities.Client{}, err
@@ -66,7 +66,7 @@ func (r *ClientRepositoryMysql) GetByEmail(email string) (entities.Client, error
 }
 
 func (r *ClientRepositoryMysql) GetById(id int64) (entities.Client, error) {
-	query := "SELECT id, name, email, password FROM clients WHERE id = ?"
+	query := "SELECT user_id, name, last_name, email, password FROM clients WHERE id = ?"
 	stmt, err := r.DB.Prepare(query)
 	if err != nil {
 		return entities.Client{}, err
@@ -76,7 +76,7 @@ func (r *ClientRepositoryMysql) GetById(id int64) (entities.Client, error) {
 	row := stmt.QueryRow(id)
 
 	var client entities.Client
-	err = row.Scan(&client.ID, &client.Name, &client.Email, &client.Password)
+	err = row.Scan(&client.ID, &client.Name, &client.LastName, &client.Email, &client.Password)
 
 	if err != nil {
 		return entities.Client{}, err

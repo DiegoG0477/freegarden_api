@@ -8,22 +8,23 @@ import (
 
 type CreateClientUseCase struct {
 	ClientRepository ports.IClient
-	EncryptService services.IEncrypt
+	EncryptService   services.IEncrypt
 }
 
 func NewCreateClientUseCase(clientRepository ports.IClient, encryptService services.IEncrypt) *CreateClientUseCase {
 	return &CreateClientUseCase{ClientRepository: clientRepository, EncryptService: encryptService}
 }
 
-func (c *CreateClientUseCase) Run(Name, Email, Password string) (entities.Client, error) {
+func (c *CreateClientUseCase) Run(Name, Email, Password, LastName string) (entities.Client, error) {
 	hashPass, err := c.EncryptService.EncryptPassword([]byte(Password))
 
 	if err != nil {
 		return entities.Client{}, err
 	}
-	
+
 	client := entities.Client{
 		Name:     Name,
+		LastName: LastName,
 		Email:    Email,
 		Password: hashPass,
 	}

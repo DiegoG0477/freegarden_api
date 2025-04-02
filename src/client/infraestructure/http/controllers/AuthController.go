@@ -28,7 +28,7 @@ func (ctr *AuthController) Run(ctx *gin.Context) {
 			Success: false,
 			Message: "Error al procesar la solicitud",
 			Error:   err.Error(),
-			Data:   nil,
+			Data:    nil,
 		})
 		return
 	}
@@ -36,20 +36,20 @@ func (ctr *AuthController) Run(ctx *gin.Context) {
 	client, err := ctr.ClientService.Run(AuthRequest.Email)
 
 	if err != nil {
-		switch err.Error(){
+		switch err.Error() {
 		case "sql: no rows in result set":
 			ctx.JSON(http.StatusNotFound, responses.Response{
 				Success: false,
 				Message: "El email no existe",
-                Error: err.Error(),
-                Data: nil,
+				Error:   err.Error(),
+				Data:    nil,
 			})
 		default:
 			ctx.JSON(http.StatusInternalServerError, responses.Response{
 				Success: false,
 				Message: "Error al iniciar sesión",
-                Error: err.Error(),
-                Data: nil,
+				Error:   err.Error(),
+				Data:    nil,
 			})
 		}
 
@@ -60,8 +60,8 @@ func (ctr *AuthController) Run(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, responses.Response{
 			Success: false,
 			Message: "Contraseña incorrecta",
-			Error: err.Error(),
-			Data: nil,
+			Error:   err.Error(),
+			Data:    nil,
 		})
 		return
 	}
@@ -72,8 +72,8 @@ func (ctr *AuthController) Run(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, responses.Response{
 			Success: false,
 			Message: "Error al generar token",
-			Error: err.Error(),
-			Data: nil,
+			Error:   err.Error(),
+			Data:    nil,
 		})
 		return
 	}
@@ -81,12 +81,13 @@ func (ctr *AuthController) Run(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, responses.Response{
 		Success: true,
 		Message: "Sesión iniciada",
-		Error: nil,
+		Error:   nil,
 		Data: map[string]interface{}{
-			"token": token,
-            "Id": client.ID,
-			"Name": client.Name,
-			"Email": client.Email,
+			"token":    token,
+			"Id":       client.ID,
+			"LastName": client.LastName,
+			"Name":     client.Name,
+			"Email":    client.Email,
 		},
 	})
 }
