@@ -4,6 +4,7 @@ import (
 	database "api-order/src/Database" // Assuming shared DB connection setup
 	"api-order/src/kit/domain/entities"
 	"database/sql"
+	"fmt"
 	"log" // For logging errors
 )
 
@@ -88,4 +89,17 @@ func (r *KitRepositoryMysql) GetByUserID(userID int64) ([]entities.Kit, error) {
 	}
 
 	return kits, nil
+}
+
+func (r *KitRepositoryMysql) CheckKitNameExists(name string) (bool, error) {
+	query := "SELECT EXISTS(SELECT 1 FROM kits WHERE name = ?)"
+	var exists bool
+	err := r.DB.QueryRow(query, name).Scan(&exists)
+
+	// sql.ErrNoRows is not returned by EXISTS, it always returns one row (0 or 1)
+	if err != nil {
+		return false, fmt.Errorf("failed to check kit name existence for '%s': %w", name, err)
+	}
+
+	return exists, nil
 }

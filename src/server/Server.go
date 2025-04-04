@@ -4,13 +4,10 @@ package server
 import (
 	database "api-order/src/Database"
 	alertRoutes "api-order/src/alert/infrastructure/http/routes" // Alias si es necesario
-	clientRoutes "api-order/src/client/infrastructure/http/routes"
 	"api-order/src/config"
-	airDataRoutes "api-order/src/data/airquality/infrastructure/http/routes"
-	lightDataRoutes "api-order/src/data/light/infrastructure/http/routes"
-	motionDataRoutes "api-order/src/data/motion/infrastructure/http/routes"
-	temperatureDataRoutes "api-order/src/data/temperature/infrastructure/http/routes"
+	dataRoutes "api-order/src/gardendata/infrastructure/http/routes"
 	kitRoutes "api-order/src/kit/infrastructure/http/routes"
+	userRoutes "api-order/src/user/infrastructure/http/routes"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -63,21 +60,15 @@ func (s *Server) registerRoutes() {
 	// Grupos de rutas v1
 	v1 := s.engine.Group("/v1") // Agrupa todas tus rutas bajo /v1
 
-	clientRoutesGroup := v1.Group("/clients")
+	userRoutesGroup := v1.Group("/users")
 	kitRoutesGroup := v1.Group("/kits")
 	alertRoutesGroup := v1.Group("/alerts")
-	temperatureRoutesGroup := v1.Group("/data/temperature")
-	airRoutesGroup := v1.Group("/data/airquality")
-	lightRoutesGroup := v1.Group("/data/light")
-	motionRoutesGroup := v1.Group("/data/motion")
+	dataRoutesGroup := v1.Group("/garden/data")
 
 	kitRoutes.KitRoutes(kitRoutesGroup)
 	alertRoutes.AlertRoutes(alertRoutesGroup)
-	clientRoutes.ClientRoutes(clientRoutesGroup) // Usa la función del paquete routes
-	temperatureDataRoutes.TemperatureRoutes(temperatureRoutesGroup)
-	airDataRoutes.AirQualityRoutes(airRoutesGroup)
-	lightDataRoutes.LightRoutes(lightRoutesGroup)
-	motionDataRoutes.MotionRoutes(motionRoutesGroup)
+	userRoutes.UserRoutes(userRoutesGroup)
+	dataRoutes.GardenDataRoutes(dataRoutesGroup)
 
 }
 

@@ -35,7 +35,7 @@ func NewRegisterAlertController(service *application.RegisterAlertUseCase) *Regi
 // @Failure      400  {object}  responses.Response "Invalid request body, validation failed, invalid Kit ID, or invalid alert type"
 // @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
 // @Failure      500  {object}  responses.Response "Internal server error while registering alert"
-// @Router       /alerts/ [post]
+// @Router       /v1/alerts/ [post]
 func (ctr *RegisterAlertController) Run(ctx *gin.Context) {
 	var req request.RegisterAlertRequest
 

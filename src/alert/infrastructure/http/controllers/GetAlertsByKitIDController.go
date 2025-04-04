@@ -28,7 +28,7 @@ func NewGetAlertsByKitIDController(service *application.GetAlertsByKitIDUseCase)
 // @Failure      400  {object}  responses.Response "Invalid Kit ID provided"
 // @Failure      401  {object}  responses.Response "Unauthorized"
 // @Failure      500  {object}  responses.Response "Failed to retrieve alerts"
-// @Router       /alerts/{kit_id} [get]
+// @Router       /v1/alerts/{kit_id} [get]
 func (ctr *GetAlertsByKitIDController) Run(ctx *gin.Context) {
 	// 1. Get kit_id from URL parameter
 	kitIDParam := ctx.Param("kit_id")
