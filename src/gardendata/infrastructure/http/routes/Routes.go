@@ -15,9 +15,8 @@ func GardenDataRoutes(router *gin.RouterGroup) {
 	// Apply authentication middleware if needed for these routes
 	// Data ingestion (POST) might use API keys, GET might use user tokens
 	// Applying standard user auth middleware here for consistency example:
-	router.Use(middlewares.JWTAuthMiddleware()) // Adjust auth strategy as needed
 
 	// Define routes
-	router.POST("/", registerController.Run)                       // Register new data
-	router.GET("/kit/:kit_id/minutes/:minutes", getController.Run) // Get recent data
+	router.POST("/", registerController.Run)                                                        // Register new data
+	router.GET("/kit/:kit_id/minutes/:minutes", middlewares.JWTAuthMiddleware(), getController.Run) // Get recent data
 }

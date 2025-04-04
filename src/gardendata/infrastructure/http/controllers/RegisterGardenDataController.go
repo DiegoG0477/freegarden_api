@@ -28,15 +28,13 @@ func NewRegisterGardenDataController(useCase *application.RegisterGardenDataUseC
 // @Tags         GardenData
 // @Accept       json
 // @Produce      json
-// @Param        Authorization header string true "Bearer Token or API Key (depending on auth strategy)"
 // @Param        data body request.RegisterGardenDataRequest true "Sensor Data Payload"
 // @Success      201  {object}  responses.Response{data=entities.GardenDataResponse} "Data registered successfully"
 // @Failure      400  {object}  responses.Response "Invalid request body or validation failed"
 // @Failure      401  {object}  responses.Response "Unauthorized - Invalid or missing token/key"
 // @Failure      404  {object}  responses.Response "Kit ID not found (if validation added)"
 // @Failure      500  {object}  responses.Response "Internal server error during registration"
-// @Router       /v1//garden/data/ [post]
-// @Security     BearerAuth // Or define a different security scheme if using API keys
+// @Router       /v1/garden/data/ [post]
 func (ctr *RegisterGardenDataController) Run(ctx *gin.Context) {
 	var req request.RegisterGardenDataRequest
 

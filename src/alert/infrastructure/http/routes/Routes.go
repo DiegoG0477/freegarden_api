@@ -13,9 +13,8 @@ func AlertRoutes(router *gin.RouterGroup) {
 	registerAlertController := alerthttp.SetUpRegisterAlertController()
 	getAlertsController := alerthttp.SetUpGetAlertsByKitIDController()
 
-	// Define routes, applying JWT middleware
 	// POST / -> Register a new alert
-	router.POST("/", middlewares.JWTAuthMiddleware(), registerAlertController.Run)
+	router.POST("/", registerAlertController.Run)
 	// GET /kit/:kit_id -> Get alerts for a specific kit
 	router.GET("/:kit_id", middlewares.JWTAuthMiddleware(), getAlertsController.Run)
 	// Note: Further authorization could be added here or in the use case/controller

@@ -30,7 +30,6 @@ func NewRegisterAlertController(service *application.RegisterAlertUseCase) *Regi
 // @Accept       json
 // @Produce      json
 // @Param        alert body request.RegisterAlertRequest true "Alert data to register"
-// @Security     BearerAuth
 // @Success      201  {object}  responses.Response{data=entities.Alert} "Alert registered successfully"
 // @Failure      400  {object}  responses.Response "Invalid request body, validation failed, invalid Kit ID, or invalid alert type"
 // @Failure      401  {object}  responses.Response "Unauthorized (token missing or invalid)"
