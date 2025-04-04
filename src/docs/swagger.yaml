@@ -1,0 +1,606 @@
+basePath: /v1             // Base path de tu API v1
+definitions:
+  controllers.LoginResponseData:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/entities.UserResponse'
+    type: object
+  entities.Alert:
+    properties:
+      alert_id:
+        description: Corresponds to alert_id PK
+        type: integer
+      alert_type:
+        description: Type of alert (e.g., "under_min", "higher_max")
+        type: string
+      kit_id:
+        description: Foreign key to kits table
+        type: integer
+      message:
+        description: Detailed message for the alert
+        type: string
+      timestamp:
+        description: Timestamp from DB default
+        type: string
+    type: object
+  entities.GardenDataResponse:
+    properties:
+      data_id:
+        type: integer
+      environment_humidity:
+        type: number
+      ground_humidity:
+        type: number
+      kit_id:
+        type: integer
+      ph_level:
+        type: number
+      temperature:
+        type: number
+      time:
+        type: integer
+      timestamp:
+        type: string
+    type: object
+  entities.Kit:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  entities.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    type: object
+  request.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.RegisterAlertRequest:
+    properties:
+      alert_type:
+        enum:
+        - under_min
+        - higher_max
+        type: string
+      kit_id:
+        type: integer
+      message:
+        minLength: 1
+        type: string
+    required:
+    - alert_type
+    - kit_id
+    - message
+    type: object
+  request.RegisterGardenDataRequest:
+    properties:
+      environment_humidity:
+        description: Corrected spelling
+        type: number
+      ground_humidity:
+        type: number
+      kit_id:
+        description: Ensure KitID is positive
+        type: integer
+      ph_level:
+        type: number
+      temperature:
+        description: Add validation tags if needed (e.g., min/max)
+        type: number
+      time:
+        description: Require the device timestamp
+        type: integer
+    required:
+    - kit_id
+    - time
+    type: object
+  request.RegisterUserRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      kit_code:
+        description: El código de kit
+        type: string
+      last_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - first_name
+    - kit_code
+    - last_name
+    - password
+    type: object
+  request.UpdateUserRequest:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+    required:
+    - first_name
+    - last_name
+    type: object
+  responses.Response:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080  // Cambia esto por tu host y puerto reales (puedes usar variables
+  de entorno)
+info:
+  contact:
+    email: support@tu-dominio.com
+    name: API Support
+    url: http://www.tu-soporte.com/support
+  description: API para gestionar kits de sensores y sus datos.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API Hexagonal Go (Sensor Kits)
+  version: "1.0"
+paths:
+  /v1//garden/data/:
+    post:
+      consumes:
+      - application/json
+      description: Receives and stores a new set of sensor readings for a specific
+        kit.
+      parameters:
+      - description: Bearer Token or API Key (depending on auth strategy)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Sensor Data Payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterGardenDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Data registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.GardenDataResponse'
+              type: object
+        "400":
+          description: Invalid request body or validation failed
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized - Invalid or missing token/key
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: Kit ID not found (if validation added)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error during registration
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth // Or define a different security scheme if using API keys: []
+      summary: Register Garden Sensor Data
+      tags:
+      - GardenData
+  /v1/alerts/:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new alert record for a specific kit.
+      parameters:
+      - description: Alert data to register
+        in: body
+        name: alert
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterAlertRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Alert registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.Alert'
+              type: object
+        "400":
+          description: Invalid request body, validation failed, invalid Kit ID, or
+            invalid alert type
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized (token missing or invalid)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while registering alert
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Register a new alert
+      tags:
+      - Alerts
+  /v1/alerts/{kit_id}:
+    get:
+      description: Retrieves all alerts for a given kit ID, ordered by timestamp descending.
+      parameters:
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alerts retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.Alert'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Failed to retrieve alerts
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get alerts for a specific kit
+      tags:
+      - Alerts
+  /v1/garden/data/kit/{kit_id}/minutes/{minutes}:
+    get:
+      description: Retrieves garden sensor data records for a specific kit recorded
+        within the last N minutes.
+      parameters:
+      - description: Bearer Token or API Key
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Kit ID
+        format: int64
+        in: path
+        name: kit_id
+        required: true
+        type: integer
+      - description: Number of past minutes to fetch data for
+        in: path
+        name: minutes
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Data retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.GardenDataResponse'
+                  type: array
+              type: object
+        "400":
+          description: Invalid Kit ID or Minutes parameter
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized - Invalid or missing token/key
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "403":
+          description: Forbidden - User does not have access to this Kit ID
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: Kit ID not found (if validation added)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving data
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth // Or appropriate scheme: []
+      summary: Get Recent Garden Data
+      tags:
+      - GardenData
+  /v1/kits/:
+    get:
+      description: Retrieves all kits associated with the user identified by the JWT
+        token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Kits retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entities.Kit'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get kits for the authenticated user
+      tags:
+      - Kits
+  /v1/users/:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with validation against an existing kit code.
+        The kit code must NOT exist in the kits table.
+      parameters:
+      - description: User Registration Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.UserResponse'
+              type: object
+        "400":
+          description: Invalid request body or validation failed
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "409":
+          description: Conflict - Email already exists OR Kit Code already exists
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error during registration
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Register a new user
+      tags:
+      - Users
+  /v1/users/{id}:
+    get:
+      description: Retrieves the details of a specific user by their ID. Requires
+        authentication.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.UserResponse'
+              type: object
+        "400":
+          description: Invalid user ID provided
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "403":
+          description: Forbidden - User attempting to access another user's data (if
+            implemented)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error while retrieving user
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Updates the first name and last name for the specified user ID.
+        Requires authentication, and users can typically only update their own data.
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Data to Update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.UserResponse'
+              type: object
+        "400":
+          description: Invalid user ID or request body validation failed
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "403":
+          description: Forbidden - User attempting to update another user's data
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error during update
+          schema:
+            $ref: '#/definitions/responses.Response'
+      security:
+      - BearerAuth: []
+      summary: Update user information
+      tags:
+      - Users
+  /v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user using email and password, returns user details and
+        a JWT token upon success.
+      parameters:
+      - description: User Login Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/controllers.LoginResponseData'
+              type: object
+        "400":
+          description: Invalid request body format or validation failed
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Incorrect password or invalid credentials
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: Email not found
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error during login or token generation
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Authenticate a user
+      tags:
+      - Users Authentication
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
