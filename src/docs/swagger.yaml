@@ -132,8 +132,6 @@ definitions:
     type: object
   request.CreateClientRequest:
     properties:
-      address:
-        type: string
       email:
         type: string
       last_name:
@@ -144,7 +142,6 @@ definitions:
         minLength: 6
         type: string
     required:
-    - address
     - email
     - last_name
     - name

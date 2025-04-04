@@ -1180,16 +1180,12 @@ const docTemplate = `{
         "request.CreateClientRequest": {
             "type": "object",
             "required": [
-                "address",
                 "email",
                 "last_name",
                 "name",
                 "password"
             ],
             "properties": {
-                "address": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
