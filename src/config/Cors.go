@@ -1,42 +1,44 @@
 package config
 
 import (
-	"log"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func ConfigurationCors() gin.HandlerFunc {
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("Error loading .env file: %v", err)
-	}
-
-	frontendURL := os.Getenv("FRONTEND_URL")
-
 	config := cors.Config{
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-		ExposeHeaders:    []string{"Content-Length"},
-	}
+		// Permite todos los orígenes
+		AllowAllOrigins: true,
 
-	// Permite todos los orígenes con credenciales
-	if frontendURL == "*" {
-		config.AllowOriginFunc = func(origin string) bool {
-			return true
-		}
-		// Importante: Cuando usas AllowOriginFunc, el header Access-Control-Allow-Origin
-		// se establecerá al valor del origen que haga la petición (no se puede usar *)
-	} else {
-		// Para múltiples URLs específicas
-		config.AllowOrigins = strings.Split(frontendURL, ",")
+		// Permite todos los métodos HTTP
+		AllowMethods: []string{
+			"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS",
+		},
+
+		// Permite todos los headers comunes y personalizados
+		AllowHeaders: []string{
+			"Origin", "Content-Length", "Content-Type", "Accept",
+			"Authorization", "X-Requested-With", "Access-Control-Allow-Origin",
+			"Access-Control-Allow-Headers", "Access-Control-Allow-Methods",
+			"Access-Control-Allow-Credentials", "Accept-Encoding",
+			"Accept-Language", "Cache-Control", "Connection", "Cookie",
+			"Host", "Pragma", "Referer", "User-Agent", "*",
+		},
+
+		// Expone todos los headers
+		ExposeHeaders: []string{
+			"Content-Length", "Access-Control-Allow-Origin",
+			"Access-Control-Allow-Headers", "Content-Type",
+			"*",
+		},
+
+		// Permite credenciales
+		AllowCredentials: true,
+
+		// Tiempo máximo de cache para preflight requests
+		MaxAge: 24 * time.Hour,
 	}
 
 	return cors.New(config)
