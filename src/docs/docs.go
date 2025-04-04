@@ -24,95 +24,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1//garden/data/": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth // Or define a different security scheme if using API keys": []
-                    }
-                ],
-                "description": "Receives and stores a new set of sensor readings for a specific kit.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "GardenData"
-                ],
-                "summary": "Register Garden Sensor Data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer Token or API Key (depending on auth strategy)",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Sensor Data Payload",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.RegisterGardenDataRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Data registered successfully",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/responses.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/entities.GardenDataResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request body or validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token/key",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Kit ID not found (if validation added)",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error during registration",
-                        "schema": {
-                            "$ref": "#/definitions/responses.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/alerts/": {
             "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Creates a new alert record for a specific kit.",
                 "consumes": [
                     "application/json"
@@ -236,6 +149,76 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to retrieve alerts",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/garden/data/": {
+            "post": {
+                "description": "Receives and stores a new set of sensor readings for a specific kit.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "GardenData"
+                ],
+                "summary": "Register Garden Sensor Data",
+                "parameters": [
+                    {
+                        "description": "Sensor Data Payload",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RegisterGardenDataRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Data registered successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/responses.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entities.GardenDataResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token/key",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Kit ID not found (if validation added)",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error during registration",
                         "schema": {
                             "$ref": "#/definitions/responses.Response"
                         }

@@ -174,57 +174,6 @@ info:
   title: API Hexagonal Go (Sensor Kits)
   version: "1.0"
 paths:
-  /v1//garden/data/:
-    post:
-      consumes:
-      - application/json
-      description: Receives and stores a new set of sensor readings for a specific
-        kit.
-      parameters:
-      - description: Bearer Token or API Key (depending on auth strategy)
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Sensor Data Payload
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.RegisterGardenDataRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Data registered successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/responses.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/entities.GardenDataResponse'
-              type: object
-        "400":
-          description: Invalid request body or validation failed
-          schema:
-            $ref: '#/definitions/responses.Response'
-        "401":
-          description: Unauthorized - Invalid or missing token/key
-          schema:
-            $ref: '#/definitions/responses.Response'
-        "404":
-          description: Kit ID not found (if validation added)
-          schema:
-            $ref: '#/definitions/responses.Response'
-        "500":
-          description: Internal server error during registration
-          schema:
-            $ref: '#/definitions/responses.Response'
-      security:
-      - BearerAuth // Or define a different security scheme if using API keys: []
-      summary: Register Garden Sensor Data
-      tags:
-      - GardenData
   /v1/alerts/:
     post:
       consumes:
@@ -262,8 +211,6 @@ paths:
           description: Internal server error while registering alert
           schema:
             $ref: '#/definitions/responses.Response'
-      security:
-      - BearerAuth: []
       summary: Register a new alert
       tags:
       - Alerts
@@ -308,6 +255,50 @@ paths:
       summary: Get alerts for a specific kit
       tags:
       - Alerts
+  /v1/garden/data/:
+    post:
+      consumes:
+      - application/json
+      description: Receives and stores a new set of sensor readings for a specific
+        kit.
+      parameters:
+      - description: Sensor Data Payload
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterGardenDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Data registered successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entities.GardenDataResponse'
+              type: object
+        "400":
+          description: Invalid request body or validation failed
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "401":
+          description: Unauthorized - Invalid or missing token/key
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "404":
+          description: Kit ID not found (if validation added)
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "500":
+          description: Internal server error during registration
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Register Garden Sensor Data
+      tags:
+      - GardenData
   /v1/garden/data/kit/{kit_id}/minutes/{minutes}:
     get:
       description: Retrieves garden sensor data records for a specific kit recorded
