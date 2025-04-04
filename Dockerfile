@@ -1,5 +1,5 @@
-# Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23.8-alpine3.21 AS builder
+
 WORKDIR /app
 
 # Copiar dependencias primero
